@@ -36,7 +36,7 @@ class DumpSplitter:
             content: list[str],
     ) -> None:
         file_id = uuid4()
-        with open(f'{self._output_dir_path}/{current_region}_{file_id}.csv', 'w', newline='') as new_csv_file:
+        with open(f'{self._output_dir_path}/{current_region}_{file_id}.csv', 'w', newline='', encoding='cp1251') as new_csv_file:
             writer = csv.writer(new_csv_file)
             writer.writerows(content)
             logger.info(f'The new file was written for a region: [{current_region}] with id: {file_id}')
