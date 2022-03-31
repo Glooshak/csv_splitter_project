@@ -6,7 +6,7 @@ authors = ["Your Name <you@example.com>"]
 readme = "README.md"
 
 [tool.poetry.scripts]
-csv-splitter = "csv_splitter.main:app"
+csv-splitter = "csv_splitter.cli:app"
 
 [tool.poetry.dependencies]
 python = "^3.10"
