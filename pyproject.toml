@@ -12,6 +12,7 @@ csv-splitter = "csv_splitter.main:app"
 python = "^3.10"
 typer = {extras = ["all"], version = "^0.4.0"}
 click = "7.1.1"
+transliterate = "^1.10.2"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"

@@ -5,6 +5,7 @@ import logging
 from typing import Optional
 
 import typer
+from transliterate import translit
 
 
 logging.basicConfig(level=logging.INFO)
@@ -18,7 +19,8 @@ class DumpSplitter:
             original_file_path: str,
             lines_limit_for_one_file: int = 250_000,
             column_number_to_filter: int = 1,
-            output_dir_path: str = './'
+            output_dir_path: str = './',
+            only_ids: bool = False
     ) -> None:
         self._original_file_path = original_file_path
         self._cities_limit_for_one_file = lines_limit_for_one_file
@@ -29,6 +31,7 @@ class DumpSplitter:
         self._buffer = list()
         self._fields_names = list()
         self._counter = 0
+        self._only_ids = only_ids
 
     def _write_new_file(
             self,
@@ -36,7 +39,8 @@ class DumpSplitter:
             content: list[str],
     ) -> None:
         file_id = uuid4()
-        with open(f'{self._output_dir_path}/{current_region}_{file_id}.csv', 'w', newline='', encoding='cp1251') as new_csv_file:
+        current_region: str = translit(current_region, 'ru', reversed=True).replace('.', '').replace(' ', '_')
+        with open(f'{self._output_dir_path}/{current_region}_{file_id}.csv', 'w', newline='') as new_csv_file:
             writer = csv.writer(new_csv_file)
             writer.writerows(content)
             logger.info(f'The new file was written for a region: [{current_region}] with id: {file_id}')
@@ -47,7 +51,7 @@ class DumpSplitter:
             reader = csv.reader(csvfile)
             for line in reader:
                 if reader.line_num == 1:
-                    self._fields_names = line
+                    self._fields_names = line if not self._only_ids else list([line[2]])
                     continue
 
                 self._current_region = line[self._column_number_to_filter]
@@ -65,7 +69,10 @@ class DumpSplitter:
                 if self._counter == 0:
                     self._buffer.append(self._fields_names)
 
-                self._buffer.append(line)
+                if not self._only_ids:
+                    self._buffer.append(line)
+                else:
+                    self._buffer.append([line[2]])
                 self._counter += 1
                 self._previous_region = self._current_region
 
@@ -121,12 +128,11 @@ def split(
             exists=True,
             writable=True,
         ),
-        version: Optional[bool] = typer.Option(
-            None,
-            '--version',
-            callback=get_cli_version,
-            is_eager=True,
-            help='Show the current version of this the cli app',
+        only_ids: bool = typer.Option(
+            False,
+            '--only-ids',
+            '-i',
+            help='There will be only one column (mobile) in generated csv files',
         ),
 ) -> None:
     """
@@ -139,12 +145,21 @@ def split(
         lines_limit_for_one_file=lines_limit_for_one_file,
         column_number_to_filter=column_number_to_filter,
         output_dir_path=output_dir_path.absolute().__str__(),
+        only_ids=only_ids,
     )
     dump_splitter.split_csv_file()
 
 
 @app.callback()
-def callback() -> None:
+def callback(
+        version: Optional[bool] = typer.Option(
+            None,
+            '--version',
+            callback=get_cli_version,
+            is_eager=True,
+            help='Show the current version of this the cli app',
+        ),
+) -> None:
     """
     CVS dumps splitter
     """
