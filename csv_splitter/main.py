@@ -126,6 +126,7 @@ def split(
             '--version',
             callback=get_cli_version,
             is_eager=True,
+	    help='Show the current version of this awesome cli application',
         ),
 ) -> None:
     """
