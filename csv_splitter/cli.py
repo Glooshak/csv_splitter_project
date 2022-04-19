@@ -50,6 +50,12 @@ def split(
             '-i',
             help='There will be only one column (mobile) in generated csv files',
         ),
+        header: bool = typer.Option(
+            False,
+            '--enable-header',
+            '-h',
+            help='Whether include or not a header of the column',
+        ),
 ) -> None:
     """
     The command for splitting csv file into several csv files with preserving a
@@ -62,6 +68,7 @@ def split(
         column_number_to_filter=column_number_to_filter,
         output_dir_path=output_dir_path.absolute().__str__(),
         only_ids=only_ids,
+        header=header,
     )
     dump_splitter.split_csv_file()
 

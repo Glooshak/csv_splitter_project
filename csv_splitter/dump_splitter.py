@@ -17,7 +17,8 @@ class DumpSplitter:
             lines_limit_for_one_file: int = 250_000,
             column_number_to_filter: int = 1,
             output_dir_path: str = './',
-            only_ids: bool = False
+            only_ids: bool = False,
+            header: bool = False,
     ) -> None:
         self._original_file_path = original_file_path
         self._cities_limit_for_one_file = lines_limit_for_one_file
@@ -29,6 +30,7 @@ class DumpSplitter:
         self._fields_names = list()
         self._counter = 0
         self._only_ids = only_ids
+        self._header = header
 
     def _write_new_file(
             self,
@@ -63,7 +65,7 @@ class DumpSplitter:
                     self._buffer.clear()
                     self._counter = 0
 
-                if self._counter == 0:
+                if self._counter == 0 and self._header:
                     self._buffer.append(self._fields_names)
 
                 if not self._only_ids:
